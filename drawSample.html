@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="style/panel.css">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>life game test</title>
+    <script src="../js/jquery.js"></script>
+</head>
+
+<body>
+    <div style="text-align: center;">
+
+        <table id='mytable'>
+
+        </table>
+
+        <div class="inline">
+            <button id='btn_previous' onclick="previousAct()" style="font-size: large;"></button>
+            <button id='btn_play' onclick="playAction()" style="font-size: large;"></button>
+            <button id='btn_next' onclick="nextAction()"></button>
+
+            <button id='speedDown' onclick='speeddownAct()' style="font-size: large;"></button>
+            <button id='speedUp' onclick='speedUpAct()' style="font-size: large;"></button>
+            <div id='showSpeed' style="font-size: large;"></div>
+
+        </div>
+
+        <div id='hint' onmouseover="showThis(this);" onmouseout="hideThis(this);"
+            style="width:auto;height:auto;border:solid 1px #a1bece;position:absolute;z-index:10000;display:none;background-color:#EEF7EA;font-size: large;">
+            <p></p>
+        </div>
+    </div>
+    <script>
+        var playing = false;
+        var speed = 3 * 1000;
+        var Timer = null;
+        var blockArr, birthArr = [], dyingArr = [];
+
+
+        var activate = false;//滑鼠是否啟動
+        var records = [];
+
+        var up = -4, left = -4, right = 4, button = 4;
+
+        var playTxt = " ▶", pauseTxt = "⏸", speedUP = '🔺', speedDown = '🔻', previousTxt = "⏪", nextTxt = "⏩";
+
+        var btn_previous = document.getElementById('btn_previous');
+
+        var btn_next = document.getElementById('btn_next');
+
+
+
+
+        function play() {
+
+            step1();
+            step2();
+
+        }
+        //調整速度
+        function speeddownAct() {
+            console.log('speedDown');
+            if (speed < 10 * 1000) {
+                speed += 1000;
+            }
+            showSpeed.innerText = `目前速度為${speed}ms`
+            if (playing) {
+                resetTimer();
+            }
+
+        }
+        function speedUpAct() {
+            console.log('speedUp');
+            if (speed > 1 * 1000) {
+                speed -= 1000;
+
+            }
+            showSpeed.innerText = `目前速度為${speed}ms`
+            if (playing) {
+                resetTimer();
+            }
+        }
+        //重置計時器
+        function resetTimer() {
+            if (Timer != null) {
+                window.clearInterval(Timer);
+
+            }
+            Timer = setInterval(play, speed);
+
+        }
+
+        $(document).on('mouseover', '.block', function () {
+
+            showHint(this);
+
+
+
+        })
+
+
+        $(document).on('click', '.block', function () {
+
+
+            //切換啟動狀態
+            activate = !activate;
+
+
+            console.log('activate=' + activate);
+
+
+            // console.log('this td='+$(this).getAttribute("data-value"));
+        });
+
+        //step1根據計算結果隨時更新top、left、right、button
+        //並將birth&dying的座標儲存在陣列中,
+        //step2則依據新的top~button繪製新的表格,
+        //並在迴圈中判定目前的座標是否符合birth or 
+
+        //先拼接出x、y座標文字
+        //if(dyingArr.includes('死亡座標')){}
+        //if(birthArr.includes('死亡座標')){}
+
+        $(document).on('mouseover', '.block', function () {
+
+
+            if (activate) {
+                let pick = $(this);
+
+                if (pick.attr('pick') == 'true') {
+
+                    die(pick);
+
+                } else {
+
+                    birth(pick);
+
+                }
+
+            }
+        });
+
+        function showHint(obj) {
+            console.log('showhint')
+            var top = $(obj).offset().top;
+            var left = $(obj).offset().left + $(obj).width() - 7;
+            // $('hint').children('p').text($(obj).attr('pos'));
+
+            document.getElementById('hint').innerHTML = $(obj).attr('pos');
+            console.log('pos=' + $(obj).attr('pos'));
+            $("#hint").css({ 'top': top + "px", 'left': left + "px" }).show("fast");
+        }
+
+        function showThis(obj) {
+            $(obj).show();
+        }
+        /*隱藏浮動框*/
+        function hideHint() {
+            $("#editCourseDiv").hide();
+        }
+        function hideThis(obj) {
+            $(obj).hide();
+        }
+
+
+
+
+
+        function playAction() {
+            console.log('playAction');
+            if (playing) {
+                if (Timer != null) {
+                    window.clearInterval(Timer);
+                    Timer = null;
+                }
+
+
+                playing = false;
+                btn_play.innerText = playTxt;
+                console.log('pause');
+
+            } else {
+
+                playing = true;
+                Timer = setInterval(play, speed);
+                btn_play.innerText = pauseTxt;
+                console.log('unpause');
+
+            }
+        }
+
+
+        function init() {
+
+            btn_play.innerText = playTxt;
+            btn_previous.innerText = previousTxt;
+            btn_next.innerText = nextTxt;
+            document.getElementById('speedDown').innerText = speedDown;
+            document.getElementById('speedUp').innerText = speedUP;
+            showSpeed.innerText = `目前速度為${speed}ms`;
+
+            // Timer = setInterval(play, speed);
+
+            let tableStr = "";
+
+            rendTable();
+
+
+
+        }
+        init();
+
+        function rendTable() {
+
+            blockArr = [];
+
+            let tableStr = "";
+
+            $('#mytable').empty();
+            for (let y = up; y <= button; y++) {
+                tableStr += "<tr>";
+                for (let x = left; x <= right; x++) {
+
+                    tempPos = "\"X:" + x + "|Y:" + y + "\"";
+                    blockArr.push(tempPos);
+
+
+                    if (birthArr.includes(tempPos)) {
+
+                        tableStr += "<td class='block' pos=" + tempPos + " pick='true' style='background-color: green;'></td>";
+
+                    } else {
+
+                        tableStr += "<td class='block' pos=" + tempPos + " pick='false'></td>";
+
+
+                    }
+
+                }
+                tableStr += "</tr>";
+
+
+            }
+
+            records.push(tableStr);//如果只需要繪表,也許存字串就夠了?
+
+            $('#mytable').append(tableStr);
+
+
+        }
+
+
+        //初始值設定->棋格中標註生命遊戲的起始點
+
+        //由於單一格子的狀態會與其他格子連動,故必須把每回合判斷的結果先暫存,
+        //等到全部格子都判斷完後,再一次把所有格子狀態更新
+
+
+
+        function step1() {
+            //更新每個格子的暫存狀態
+
+            dyingArr = [];
+            birthArr = [];
+
+            //由於增生範圍只會在現有範圍的基礎下+1,所以把檢查範圍設定為Y-1~Y+1/X-1~+X+1
+            // let tempMinX;
+            // let tempMaxX;
+            // let tempMinY;
+            // let tempMaxY;
+
+            for (let y = up - 1; y <= button + 1; y++) {
+
+                for (let x = left - 1; x <= right + 1; x++) {
+                    //將當前座標傳入檢查方法
+                    let temp = "\"X:" + x + "|Y:" + y + "\"";
+
+                    let result = checkTemp(temp);
+
+                    if (result.birth) {
+
+                        if (result.posX < left) {
+                            left = result.posX;
+                        }
+                        if (result.posX > right) {
+                            right = result.posX;
+                        }
+
+                        if (result.posY < up) {
+                            up =result.posY;
+                        }
+
+                        if (result.posY > button) {
+                            button = result.posY;
+                        }
+
+
+
+                    }
+
+                    // if(tempMinX=null){
+                    //     tempMinX=result.posX;
+                    // }
+
+                    // if(tempMaxX=null){
+                    //     tempMaxX=result.posX;
+                    // }
+
+                    // if(tempMinY=null){
+                    //     tempMinY=result.posY;
+                    // }
+
+                    // if(tempMaxY=null){
+                    //     tempMaxY=result.posY;
+                    // }
+
+
+                    // if(result.posX<tempMinX){
+                    //     tempMinX=result.posX;
+                    // }else if(result.posX>tempMaxX){
+                    //     tempMaxX=result.posX;
+                    // }
+
+                    // if(result.posY<tempMinY){
+                    //     tempMinY=result.posY;
+                    // }else if(result.posY>tempMaxY)
+                    //    { tempMaxY=result.posY;
+                    // }
+
+                }
+
+
+            }
+
+
+        }
+
+
+
+        function previousAct() {
+            //原則上應該可以把前幾輪的結果存起來,如果玩家需要的話可以回溯
+
+            $('#mytable').empty();
+
+            $('#mytable').append(records.pop());
+
+        }
+
+        function nextAction() {
+
+            step1();
+            step2();
+        }
+
+        //自動擴張版圖構想:
+        //初始座標中心點(0,0) 周遭從(-1,-1)~(1,1)
+        //原則上擴張一次最多上下左右各新增1排,
+        //最偷懶的方式是,4周圍直接都增加一排
+
+        function checkTemp(b) {
+
+            console.log('b=' + b);
+            let birth = false;
+            let posX = parseInt(b.slice(b.indexOf('X:') + 2, b.indexOf('|')));
+            let posY = parseInt(b.slice(b.indexOf('Y:') + 2));
+
+            let yStart = -1, yEnd = 1;
+            let xStart = -1, xEnd = 1;
+            let count = 0;//基準點周圍格子判斷計數
+
+
+            console.log('xstart=' + xStart);
+            console.log('xend=' + xEnd);
+            console.log('ystart=' + yStart);
+            console.log('yend=' + yEnd);
+
+            for (let i = posX + xStart; i <= posX + xEnd; i++) {
+                for (let j = posY + yStart; j <= posY + yEnd; j++) {
+
+                    let current = "\"X:" + i + "|Y:" + j + "\"";
+
+                    let temp = $('td[pos=' + current + ']');
+
+                    //判斷temp格子是否已存在,以及是否是正在檢查的格子
+                    if (temp != null && current != b) {
+
+                        if (temp.attr('pick') == 'true') {
+                            count += 1;
+
+                        }
+
+
+                    } else {
+                        continue;
+                    }
+
+
+                }
+            }
+            console.log(b + '計算count:' + count);
+
+
+
+
+            //基本規則
+            /*每個細胞有兩種狀態 - 存活或死亡，每個細胞與以自身為中心的周圍八格細胞產生互動（如圖，黑色為存活，白色為死亡）
+    當前細胞為存活狀態時，當周圍的存活細胞低於2個時（不包含2個），該細胞變成死亡狀態。（模擬生命數量稀少）
+    當前細胞為存活狀態時，當周圍有2個或3個存活細胞時，該細胞保持原樣。
+    當前細胞為存活狀態時，當周圍有超過3個存活細胞時，該細胞變成死亡狀態。（模擬生命數量過多）
+    當前細胞為死亡狀態時，當周圍有3個存活細胞時，該細胞變成存活狀態。（模擬繁殖）*/
+
+            //
+            //當基準點細胞為false時
+
+
+            //先檢查這個格子是否已經存在
+
+            //如果已存在
+            if (blockArr.includes(b)) {
+
+                let block = $('td[pos=' + b + ']');
+
+
+
+
+                if (block.attr('pick') == 'false') {
+
+                    if (count == 3) {
+                        //當前細胞為死亡狀態時，當周圍有3個存活細胞時，該細胞變成存活狀態。（模擬繁殖）*/
+                        birth = true;
+                        birthArr.push(b);
+                        console.log('birthArr加入' + b);
+                    }
+
+
+
+
+                }
+
+                if (block.attr('pick') == 'true') {
+
+                    if (count < 2) {
+                        //當前細胞為存活狀態時，當周圍的存活細胞低於2個時（不包含2個），該細胞變成死亡狀態。（模擬生命數量稀少）
+                        // dyingArr.push(b);
+                        // console.log('dyingArr加入' + b);
+                    } else if (count <= 3) {
+                        //當前細胞為存活狀態時，當周圍有2個或3個存活細胞時，該細胞保持原樣。
+                        birth = true;
+                        birthArr.push(b);
+                    } else {
+                        //當前細胞為存活狀態時，當周圍有超過3個存活細胞時，該細胞變成死亡狀態。（模擬生命數量過多）
+                        // dyingArr.push(b);
+                        // console.log('dyingArr加入' + b);
+
+                    }
+                }
+
+
+
+
+            } else {
+
+                if (count == 3) {
+
+                    birth = true;
+
+                    birthArr.push(b);
+                    console.log('birthArr加入' + b);
+                
+
+                }
+
+            }
+
+            return { 'posX': posX, 'posY': posY, 'birth': birth };
+
+        }
+
+        function step2() {
+
+            rendTable();
+
+
+        }
+
+        function birth(b) {
+
+            let t = $(b);
+
+            t.attr('pick', 'true');
+            t.css("background-color", "green");
+
+            // console.log(t.attr('pos') + " is birth");
+
+        }
+
+
+
+        function die(b) {
+
+            $(b).attr('pick', 'false');
+            $(b).css("background-color", "");
+
+            // console.log($(b).attr('pos') + " is dying");
+
+        }
+
+
+        //狀態別: state:0=death,1=alive
+        //暫存狀態 temp:0=dying,1=birth 
+
+        //回合開始時
+        //1.先逐一掃瞄所有格子state,把結果存成temp
+        //*如果temp的結果會改變地圖邊界,將top,left,right,down更新
+        //原本不存在的格子
+        //2.根據temp值更新state,
+
+
+        //回合開始:step1:逐一判定每個格子周圍8個格子的狀態,並將判斷結果儲存為
+
+
+    </script>
+
+</body>
+
+</html>
