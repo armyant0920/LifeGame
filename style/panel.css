@@ -1,0 +1,19 @@
+table {
+
+    background-color: white;
+    border:2px solid black;
+    border-collapse:collapse;
+    margin:auto; 
+   
+
+
+}
+
+.block{
+    border: 1px solid black;
+    /* border-radius: 50%; */
+    width: 50px;
+    height: 50px;
+    transition: all .5s;
+
+}
