@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="style/panel.css">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>life game test</title>
+    <style>
+        img {
+            position: absolute;
+            width: auto;
+            height: 100%;
+            opacity: 1;
+        }
+    </style>
+    <script src="../js/jquery.js"></script>
+</head>
+
+<body>
+    <div style="text-align: center;">
+
+        <table id='mytable'>
+
+        </table>
+
+
+        <div id='hint' onmouseover="showThis(this);" onmouseout="hideThis(this);"
+            style="width:auto;height:auto;border:solid 1px #a1bece;position:absolute;z-index:10000;display:none;background-color:#EEF7EA;font-size: large;">
+            <p></p>
+        </div>
+
+        <div id='detail' onmouseover="showThis(this);" onmouseout="hideThis(this);" #575856
+            style="width:300px;height:150px;border:solid 1px #a1bece;position:absolute;z-index:10000;display:none;background-color:rgba( 87, 88, 86, 0.5);font-size: large;float: left;">
+            <div style="float: left;">
+                <span>desc</span>
+            </div>
+
+            <img id='icon' style="position: relative;float: right;">
+            <!--style="position: absolute;"-->
+        </div>
+
+
+    </div>
+    <script>
+        //右鍵事件設定
+        document.oncontextmenu = function (e) {
+            //需取得右鍵點下的位置,是不是一個可以被移動到的格子
+
+
+            return false; //很重要，不能讓瀏覽器顯示自己的右鍵選單
+        }
+
+        var playing = false;
+
+        var Timer = null;
+        var blockArr, birthArr = [], dyingArr = [];
+
+
+        var activate = false;//滑鼠是否啟動
+        var pickBlock;
+        var records = [];
+
+        var up = -4, left = -4, right = 4, button = 4;
+
+
+
+        //重置計時器
+        function resetTimer() {
+            if (Timer != null) {
+                window.clearInterval(Timer);
+
+            }
+            Timer = setInterval(play, speed);
+
+        }
+
+        $(document).on('mouseover', '.block', function () {
+
+            showHint(this);
+
+        })
+
+
+        $(document).on('click', '.block', function () {
+
+
+            //切換啟動狀態
+            activate = !activate;
+         
+            pickBlock = $(this);
+            console.log('pcik=' + pickBlock.attr('pos'));
+      
+            rangeCheck(pickBlock);
+
+            console.log('activate=' + activate);
+
+
+            // console.log('this td='+$(this).getAttribute("data-value"));
+        });
+
+
+
+
+        function showHint(obj) {
+            console.log('showhint')
+            var top = $(obj).offset().top;
+            var left = $(obj).offset().left + $(obj).width() - 7;
+            // $('hint').children('p').text($(obj).attr('pos'));
+
+            document.getElementById('hint').innerHTML = $(obj).attr('pos');
+
+            console.log('pos=' + $(obj).attr('pos'));
+            $("#hint").css({ 'top': top + "px", 'left': left + "px" }).show("fast");
+            $("#detail").css({ 'top': top + "px", 'left': left + "px" }).show("fast");
+            var img = document.getElementById('icon');
+            img.src = 'images/waifu_1.png';
+
+        }
+
+        function showThis(obj) {
+            $(obj).show();
+        }
+        /*隱藏浮動框*/
+        function hideHint() {
+            $("#editCourseDiv").hide();
+        }
+        function hideThis(obj) {
+            $(obj).hide();
+        }
+
+
+
+        function init() {
+
+            // Timer = setInterval(play, speed);
+
+            let tableStr = "";
+
+            rendTable();
+
+
+
+        }
+        init();
+
+        function rendTable() {
+
+            blockArr = [];
+
+            let tableStr = "";
+
+            $('#mytable').empty();
+            for (let y = up; y <= button; y++) {
+                tableStr += "<tr>";
+                for (let x = left; x <= right; x++) {
+
+                    tempPos = "\"X:" + x + "|Y:" + y + "\"";
+                    blockArr.push(tempPos);
+
+
+                    if (birthArr.includes(tempPos)) {
+
+                        tableStr += "<td class='block' pos=" + tempPos + " pick='true' style='background-color: green;'></td>";
+
+                    } else {
+
+                        tableStr += "<td class='block' pos=" + tempPos + " pick='false'></td>";
+
+
+                    }
+
+                }
+                tableStr += "</tr>";
+
+
+            }
+
+            records.push(tableStr);//如果只需要繪表,也許存字串就夠了?
+
+            $('#mytable').append(tableStr);
+
+
+        }
+
+
+
+
+
+        function rangeCheck(b) {
+          
+            $('.block').css("background-color", "");
+            pickBlock.css("background-color","red");
+            let pos = b.attr('pos');
+            let posX = parseInt(pos.slice(pos.indexOf('X:') + 2, pos.indexOf('|')));
+            let posY = parseInt(pos.slice(pos.indexOf('Y:') + 2));
+
+            let yStart = -3, yEnd = 3;
+            let xStart = -3, xEnd = 3;
+            let count = 0;//基準點周圍格子判斷計數
+
+
+            console.log('@xstart=' + xStart);
+            console.log('@xend=' + xEnd);
+            console.log('@ystart=' + yStart);
+            console.log('@yend=' + yEnd);
+
+            //方向:從上到下,從左至右    
+            //for (let i = posX + xStart; i <= posX + xEnd; i++) 
+            for (let i = xStart; i <= xEnd; i++) {
+
+
+                //for (let j = posY + yStart; j <= posY + yEnd; j++) 
+                for (let j = yStart + Math.abs(i); j <= yEnd - Math.abs(i); j++) {
+
+                    let current = "\"X:" + (i + posX) + "|Y:" + (j + posY) + "\"";
+                    console.log(`current=${current}`);
+
+                    let temp = $('td[pos=' + current + ']');
+
+
+                    //判斷temp格子是否已存在,以及是否是正在檢查的格子
+                    if (temp != null && temp.attr('pos') != b.attr('pos')) {
+
+                        temp.css("background-color", "lightblue");
+
+
+
+                    } else {
+                        continue;
+                    }
+
+
+                }
+            }
+
+
+
+        }
+
+
+
+    </script>
+
+</body>
+
+</html>
