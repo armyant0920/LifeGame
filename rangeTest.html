@@ -19,6 +19,8 @@
 </head>
 
 <body>
+
+
     <div style="text-align: center;">
 
         <table id='mytable'>
@@ -88,10 +90,10 @@
 
             //切換啟動狀態
             activate = !activate;
-         
+
             pickBlock = $(this);
             console.log('pcik=' + pickBlock.attr('pos'));
-      
+            if(pickBlock.attr("chess")=='Y')
             rangeCheck(pickBlock);
 
             console.log('activate=' + activate);
@@ -189,9 +191,9 @@
 
 
         function rangeCheck(b) {
-          
+
             $('.block').css("background-color", "");
-            pickBlock.css("background-color","red");
+            pickBlock.css("background-color", "red");
             let pos = b.attr('pos');
             let posX = parseInt(pos.slice(pos.indexOf('X:') + 2, pos.indexOf('|')));
             let posY = parseInt(pos.slice(pos.indexOf('Y:') + 2));
@@ -222,8 +224,11 @@
 
                     //判斷temp格子是否已存在,以及是否是正在檢查的格子
                     if (temp != null && temp.attr('pos') != b.attr('pos')) {
-
+                        if(temp.attr('block')=='Y'){
+                            temp.css("background-color", "black");    
+                        }else{
                         temp.css("background-color", "lightblue");
+                    }    
 
 
 
@@ -233,6 +238,46 @@
 
 
                 }
+            }
+
+
+
+        }
+
+        class chess {
+            posX;
+            posY;
+            block;
+            color;
+            constructor(posX, posY, block, color) {
+
+                this.posX = posX;
+                this.posY = posY
+                this.block = block;
+                this.color = color;
+                console.log(`create:posX:${posX} posY:${posY} block:${block} color:${color}`);
+                // $(body).append('<div></div>');
+                let current = "\"X:" + posX + "|Y:" + posY + "\"";
+                console.log(`current=${current}`);
+
+                let temp = $('td[pos=' + current + ']');
+
+                if (temp != null ) {
+
+                    temp.css("background-color", color);
+                    temp.attr('chess',"Y");
+                    temp.attr('block',block);
+
+
+
+                } else {
+                  
+                }
+
+
+
+
+
             }
 
 
