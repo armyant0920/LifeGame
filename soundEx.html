@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./images/favicon.ico" type="image/x-icon" />
+    <!-- <link rel="shortcut icon" href="./images/favicon.ico" type="image/x-icon"/> -->
+
+    <title>PlaySound</title>
+</head>
+
+<body>
+
+
+    <div>
+        playSound
+    </div>
+
+    <div>
+
+        <input type="file" id="fileElem" multiple accept="image/*" style="display:none"
+            onchange="handleFiles(this.files)">
+        <a href="#" id="fileSelect">Select some files</a>
+        <div id="fileList">
+            <p>No files selected!</p>
+        </div>
+
+    </div>
+    <script>
+
+        function sound(src) {
+            this.sound = document.createElement("audio");
+            this.sound.src = src;
+            this.sound.setAttribute("preload", "auto");
+            this.sound.setAttribute("controls", "none");
+            this.sound.style.display = "none";
+            document.body.appendChild(this.sound);
+            this.play = function () {
+                this.sound.play();
+                
+            }
+            this.stop = function () {
+                this.sound.pause();
+            }
+        }
+
+        // function writeTxt() {
+
+        //     var fso = new ActiveXObject("Scripting.FileSystemObject");
+        //     var f1 = fso.createtextfile("c:\\myjstest.txt", true);
+        // }
+
+        // function getFile() {
+        //     var fso = new ActiveXObject("Scripting.FileSystemObject");
+        //     var f1 = fso.GetFile("c:\\myjstest.txt");
+
+
+
+        // }
+
+
+        function playSound() {
+
+            mSound = new sound("sound/badend1.mp3");
+            
+            mSound.play();
+        }
+
+        var fileSelect = document.getElementById("fileSelect"),
+            fileElem = document.getElementById("fileElem"),
+            fileList = document.getElementById("fileList");
+
+        fileSelect.addEventListener("click", function (e) {
+            if (fileElem) {
+                fileElem.click();
+            }
+            e.preventDefault(); // prevent navigation to "#"
+        }, false);
+        /*
+        https://developer.mozilla.org/zh-TW/docs/Web/API/File/Using_files_from_web_applications
+        */
+        function handleFiles(files) {
+            if (!files.length) {
+                fileList.innerHTML = "<p>No files selected!</p>";
+            }
+            else {
+                fileList.innerHTML = ""
+                var list = document.createElement("ul");
+                for (var i = 0; i < files.length; i++) {
+                    var li = document.createElement("li");
+                    list.appendChild(li);
+
+                    var img = document.createElement("img");
+                    img.src = window.URL.createObjectURL(files[i]);
+                    img.height = 60;
+                    img.onload = function () {
+                        window.URL.revokeObjectURL(this.src);
+                    }
+                    li.appendChild(img);
+
+                    var info = document.createElement("span");
+                    info.innerHTML = files[i].name + ": " + files[i].size + " bytes";
+                    li.appendChild(info);
+                }
+                fileList.appendChild(list);
+            }
+        }
+
+
+    </script>
+
+</body>
+
+</html>
