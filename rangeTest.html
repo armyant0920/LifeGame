@@ -56,7 +56,7 @@
 
     <div style="text-align: center;">
 
-        <table id='mytable'>
+        <table id='mytable' style="background-image: url('images/background1.jpg'); background-repeat: no-repeat;background-size: cover;">
 
         </table>
         <div style="-webkit-animation:available ;"></div>
@@ -67,16 +67,22 @@
             <p></p>
         </div>
 
-        <div id='detail' onmouseover="showThis(this);" onmouseout="hideThis(this);" #575856
+        <div id='menu' onmouseover="showThis(this);" onmouseout="hideThis(this);" #575856
             style="width:300px;height:150px;border:solid 1px #a1bece;position:absolute;z-index:10000;display:none;background-color:rgba( 87, 88, 86, 0.5);font-size: large;float: left;">
             <div style="float: left;">
                 <span>desc</span>
+                <button id='move' onclick="rangeCheck(pickBlock);">移動</button>
+                <button id='skill' onclick="">技能</button>
+                <button id='item' onclick="">道具</button>
+                <button id='state' onclick="">狀態</button>
             </div>
 
             <img id='icon' class='icon' style="position: relative;float: right;">
             <!--style="position: absolute;"-->
         </div>
-        <div class='available' style='width:200px;height: 200px;'>123456</div>
+        <div class='available' style='width:200px;height: 200px;'>123456
+            <img src="images/effect/jV095BV.gif">
+        </div>
 
 
     </div>
@@ -103,7 +109,7 @@
         var chessmen = [];
 
         var Timer = null;
-        var blockArr, birthArr = [], dyingArr = [];
+        
 
 
         var activate = false;//滑鼠是否啟動
@@ -140,8 +146,9 @@
                 if (pickBlock.attr("chess") == 'Y') {
                     //切換啟動狀態
                     activate = !activate;
-                    rangeCheck(pickBlock);
+                   // rangeCheck(pickBlock);
                     console.log('activate=' + activate);
+                    showMenu($(this));
                 }
 
 
@@ -151,6 +158,7 @@
 
             if (e.button == 2) {
                 let pos = $(this).attr('pos');
+                pos='\"'+pos+'\"';
                 console.log(`你點了右鍵:${pos} `);
                 console.log("id=" + pickBlock.attr('chessId'));
                 if ($(this).attr('block') != 'Y') {
@@ -181,10 +189,7 @@
 
 
                 }
-
-        
-
-
+    
                 //以陣列統一控管格子
                /* $.each(range, function (index, block) {
 
@@ -199,7 +204,7 @@
                 })*/
 
 
-                pickBlock.remove(".chess");
+               
                 //$(this).append("<img id='" + tempPos + "' class='chess'  src='images/waifu_1.png'>");
 
             }
@@ -214,6 +219,18 @@
 
         });
 
+        function showMenu(obj){
+            console.log('showMenu');
+            let top = $(obj).offset().top;
+            let left = $(obj).offset().left + $(obj).width() * 2;
+
+            $("#menu").css({ 'top': top + "px", 'left': (left+100) + "px" }).show("fast");
+            let img = document.getElementById('icon');
+            img.src = 'images/waifu_1.png';
+
+
+        }
+
 
 
 
@@ -227,9 +244,7 @@
 
             //console.log('pos=' + $(obj).attr('pos'));
             $("#hint").css({ 'top': top + "px", 'left': left + "px" }).show("fast");
-            $("#detail").css({ 'top': top + "px", 'left': left + "px" }).show("fast");
-            var img = document.getElementById('icon');
-            img.src = 'images/waifu_1.png';
+         
 
         }
 
@@ -261,7 +276,7 @@
 
         function rendTable() {
 
-            blockArr = [];
+         
 
             let tableStr = "";
 
@@ -271,21 +286,8 @@
                 for (let x = left; x <= right; x++) {
 
                     tempPos = "\"X:" + x + "|Y:" + y + "\"";
-                    blockArr.push(tempPos);
-
-
-                    if (birthArr.includes(tempPos)) {
-
-                        tableStr += "<td class='block' pos=" + tempPos + " pick='true' style='background-color: green;'></td>";
-
-                    } else {
-
-                        tableStr += "<td class='block' pos=" + tempPos + " pick='false'></td>";
-
-                        //<img id='" + tempPos + "' class='chess'  src='images/waifu_1.png'> 
-
-
-                    }
+            
+                    tableStr += "<td class='block' pos=" + tempPos + " pick='false'></td>";
 
                 }
                 tableStr += "</tr>";
@@ -307,6 +309,7 @@
         function rangeCheck(b) {
             //不確定是不是最好的清空法..
             range = [];
+            console.log("b="+b.attr('pos'));
 
             $('.block').css("background-color", "");
             pickBlock.css("background-color", "red");
@@ -319,10 +322,10 @@
             let count = 0;//基準點周圍格子判斷計數
 
 
-            console.log('@xstart=' + xStart);
-            console.log('@xend=' + xEnd);
-            console.log('@ystart=' + yStart);
-            console.log('@yend=' + yEnd);
+            // console.log('@xstart=' + xStart);
+            // console.log('@xend=' + xEnd);
+            // console.log('@ystart=' + yStart);
+            // console.log('@yend=' + yEnd);
 
             //方向:從上到下,從左至右    
             //for (let i = posX + xStart; i <= posX + xEnd; i++) 
@@ -333,7 +336,7 @@
                 for (let j = yStart + Math.abs(i); j <= yEnd - Math.abs(i); j++) {
 
                     let current = "\"X:" + (i + posX) + "|Y:" + (j + posY) + "\"";
-                    console.log(`current=${current}`);
+                   // console.log(`current=${current}`);
 
                     let temp = $('td[pos=' + current + ']');
 
@@ -349,6 +352,8 @@
                          }*/
 
                     } else {
+
+                       //console.log(`不符條件:${temp.attr('pos')}`);
                         continue;
                     }
 
@@ -392,20 +397,22 @@
                     temp.css("background-color", "");
                     temp.attr('chess', "N");
                     temp.attr('block', "");
-
-                    temp.remove();
+                    temp.empty();
+                    //temp.remove(".chess");
 
 
 
                 }
                 console.log("新位置:" + pos);
-                temp = $('td[pos=\"' + pos + '\"]');
+                temp = $('td[pos=' + pos + ']');
+                //pos='\"+'+pos+'\"';
                  if(temp!=null){
 
 
                     temp.css("background-color", this.color);
                     temp.attr('chess', "Y");
                     temp.attr('block', this.block);
+                    temp.attr('chessId', this.id);
 
                     temp.append("<img id='" + this.id + "'pos='"+pos+"' class='chess'  src='images/waifu_1.png'>");              
                 }
