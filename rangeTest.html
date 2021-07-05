@@ -100,7 +100,7 @@
 
         var playing = false;
         var range = [];
-        var chessmen=[];
+        var chessmen = [];
 
         var Timer = null;
         var blockArr, birthArr = [], dyingArr = [];
@@ -150,10 +150,22 @@
             //右鍵
 
             if (e.button == 2) {
-                let pos=$(this).attr('pos');
+                let pos = $(this).attr('pos');
                 console.log(`你點了右鍵:${pos} `);
-                console.log("id="+pickBlock.attr('chessId'));
+                console.log("id=" + pickBlock.attr('chessId'));
                 if ($(this).attr('block') != 'Y') {
+
+                    chessmen.forEach(function (id, index, arr) {
+                    console.log(`比對中:${arr[index].id}`);
+                    if (arr[index].id == pickBlock.attr('chessId')) {
+
+                        //let e=document.getElementById(temp.name);
+                        // e.remove();
+                        console.log('比對OK');
+                        arr[index].move(pos);
+                        //document.body.remove(this.mDiv);
+                    }
+                });
 
 
                     $.each(range, function (index, block) {
@@ -165,23 +177,26 @@
 
                     });
 
+                    activate = false;
+
 
                 }
 
-                chessmen.forEach(function(id,index,arr){
-                    console.log(`比對中:${arr[index].id}`);
-                    if(arr[index].id==pickBlock.attr('chessId')){
-                       
-                        //let e=document.getElementById(temp.name);
-                       // e.remove();
-                       console.log('比對OK');
-                       arr[index].move(pos);
-                        //document.body.remove(this.mDiv);
+        
+
+
+                //以陣列統一控管格子
+               /* $.each(range, function (index, block) {
+
+                    if (range[index].attr('block') == 'Y') {
+                        range[index].css("background-color", "black");
+
+                    } else {
+                        range[index].addClass('available');
+
                     }
-                })     
 
-
-                tempPos = $(this).attr('pos');
+                })*/
 
 
                 pickBlock.remove(".chess");
@@ -205,7 +220,7 @@
         function showHint(obj) {
             console.log('showhint')
             var top = $(obj).offset().top;
-            var left = $(obj).offset().left + $(obj).width() - 7;
+            var left = $(obj).offset().left + $(obj).width() * 2;
             // $('hint').children('p').text($(obj).attr('pos'));
 
             document.getElementById('hint').innerHTML = $(obj).attr('pos');
@@ -368,37 +383,40 @@
 
             move(pos) {
 
-                  //let temp = $('td[pos=' + current + ']');
-                 console.log("舊位置"+this.position);   
-                 let temp = $('td[pos=' + this.position + ']');
+                //let temp = $('td[pos=' + current + ']');
+                console.log("舊位置" + this.position);
+               
+                let temp = $('td[pos=' + this.position + ']');
                 if (temp != null) {
 
                     temp.css("background-color", "");
                     temp.attr('chess', "N");
                     temp.attr('block', "");
 
-                    temp.remove(".chess");
+                    temp.remove();
 
 
 
                 }
-                console.log("新位置:"+pos);  
-                temp=$('td[pos=\"'+pos+'\"]');
-                // if(temp!=null){
+                console.log("新位置:" + pos);
+                temp = $('td[pos=\"' + pos + '\"]');
+                 if(temp!=null){
 
 
-                //     temp.css("background-color", this.color);
-                //     temp.attr('chess', "Y");
-                //     temp.attr('block', this.block);
+                    temp.css("background-color", this.color);
+                    temp.attr('chess', "Y");
+                    temp.attr('block', this.block);
 
-                //     temp.append("<img id='" + this.id + "'pos='"+pos+"' class='chess'  src='images/waifu_1.png'>");              
-                // }
+                    temp.append("<img id='" + this.id + "'pos='"+pos+"' class='chess'  src='images/waifu_1.png'>");              
+                }
+
+                this.position=pos;
 
 
 
             }
-            constructor(id,posX, posY, block, color) {
-                this.id=id;
+            constructor(id, posX, posY, block, color) {
+                this.id = id;
                 this.posX = posX;
                 this.posY = posY
                 this.block = block;
@@ -418,7 +436,7 @@
                     temp.attr('chessId', id);
                     temp.attr('block', block);
 
-                    temp.append("<img id='" + id + "' pos='"+tempPos+"' class='chess'  src='images/waifu_1.png'>");
+                    temp.append("<img id='" + id + "' pos='" + tempPos + "' class='chess'  src='images/waifu_1.png'>");
 
 
 
