@@ -56,7 +56,8 @@
 
     <div style="text-align: center;">
 
-        <table id='mytable' style="background-image: url('images/background1.jpg'); background-repeat: no-repeat;background-size: cover;">
+        <table id='mytable'
+            style="background-image: url('images/background1.jpg'); background-repeat: no-repeat;background-size: cover;">
 
         </table>
         <div style="-webkit-animation:available ;"></div>
@@ -109,7 +110,7 @@
         var chessmen = [];
 
         var Timer = null;
-        
+
 
 
         var activate = false;//滑鼠是否啟動
@@ -146,7 +147,7 @@
                 if (pickBlock.attr("chess") == 'Y') {
                     //切換啟動狀態
                     activate = !activate;
-                   // rangeCheck(pickBlock);
+                    // rangeCheck(pickBlock);
                     console.log('activate=' + activate);
                     showMenu($(this));
                 }
@@ -158,22 +159,22 @@
 
             if (e.button == 2) {
                 let pos = $(this).attr('pos');
-                pos='\"'+pos+'\"';
+                pos = '\"' + pos + '\"';
                 console.log(`你點了右鍵:${pos} `);
                 console.log("id=" + pickBlock.attr('chessId'));
                 if ($(this).attr('block') != 'Y') {
 
                     chessmen.forEach(function (id, index, arr) {
-                    console.log(`比對中:${arr[index].id}`);
-                    if (arr[index].id == pickBlock.attr('chessId')) {
+                        console.log(`比對中:${arr[index].id}`);
+                        if (arr[index].id == pickBlock.attr('chessId')) {
 
-                        //let e=document.getElementById(temp.name);
-                        // e.remove();
-                        console.log('比對OK');
-                        arr[index].move(pos);
-                        //document.body.remove(this.mDiv);
-                    }
-                });
+                            //let e=document.getElementById(temp.name);
+                            // e.remove();
+                            console.log('比對OK');
+                            arr[index].move(pos);
+                            //document.body.remove(this.mDiv);
+                        }
+                    });
 
 
                     $.each(range, function (index, block) {
@@ -189,22 +190,22 @@
 
 
                 }
-    
+
                 //以陣列統一控管格子
-               /* $.each(range, function (index, block) {
+                /* $.each(range, function (index, block) {
+ 
+                     if (range[index].attr('block') == 'Y') {
+                         range[index].css("background-color", "black");
+ 
+                     } else {
+                         range[index].addClass('available');
+ 
+                     }
+ 
+                 })*/
 
-                    if (range[index].attr('block') == 'Y') {
-                        range[index].css("background-color", "black");
-
-                    } else {
-                        range[index].addClass('available');
-
-                    }
-
-                })*/
 
 
-               
                 //$(this).append("<img id='" + tempPos + "' class='chess'  src='images/waifu_1.png'>");
 
             }
@@ -219,12 +220,12 @@
 
         });
 
-        function showMenu(obj){
+        function showMenu(obj) {
             console.log('showMenu');
             let top = $(obj).offset().top;
             let left = $(obj).offset().left + $(obj).width() * 2;
 
-            $("#menu").css({ 'top': top + "px", 'left': (left+100) + "px" }).show("fast");
+            $("#menu").css({ 'top': top + "px", 'left': (left + 100) + "px" }).show("fast");
             let img = document.getElementById('icon');
             img.src = 'images/waifu_1.png';
 
@@ -244,7 +245,7 @@
 
             //console.log('pos=' + $(obj).attr('pos'));
             $("#hint").css({ 'top': top + "px", 'left': left + "px" }).show("fast");
-         
+
 
         }
 
@@ -276,7 +277,7 @@
 
         function rendTable() {
 
-         
+
 
             let tableStr = "";
 
@@ -286,7 +287,7 @@
                 for (let x = left; x <= right; x++) {
 
                     tempPos = "\"X:" + x + "|Y:" + y + "\"";
-            
+
                     tableStr += "<td class='block' pos=" + tempPos + " pick='false'></td>";
 
                 }
@@ -309,7 +310,7 @@
         function rangeCheck(b) {
             //不確定是不是最好的清空法..
             range = [];
-            console.log("b="+b.attr('pos'));
+            console.log("b=" + b.attr('pos'));
 
             $('.block').css("background-color", "");
             pickBlock.css("background-color", "red");
@@ -336,7 +337,7 @@
                 for (let j = yStart + Math.abs(i); j <= yEnd - Math.abs(i); j++) {
 
                     let current = "\"X:" + (i + posX) + "|Y:" + (j + posY) + "\"";
-                   // console.log(`current=${current}`);
+                    // console.log(`current=${current}`);
 
                     let temp = $('td[pos=' + current + ']');
 
@@ -353,7 +354,7 @@
 
                     } else {
 
-                       //console.log(`不符條件:${temp.attr('pos')}`);
+                        //console.log(`不符條件:${temp.attr('pos')}`);
                         continue;
                     }
 
@@ -378,6 +379,113 @@
 
         }
 
+        function nextLevel(sp) {
+            let spArr = sp.next();
+            for (p in spArr) {
+
+                let current = "\"X:" + p.posX + "|Y:" + p.posY + "\"";
+                let temp = $('td[pos=' + current + ']');
+
+                if (temp != null) {
+
+                    if (temp.attr('block') == 'Y') {
+                        temp.css("background-color", "black");
+
+                    } else {
+                        temp.addClass('available');
+
+                    }
+
+
+
+                }
+            }
+
+        }
+
+        class sp {
+
+            posX;//目前X
+            psoY;//目前Y
+            previous;//上一個格子
+
+            constructor(x, y, pre) {
+                this.posX = x;
+                this.posY = y;
+                this.previous = pre;
+
+            }
+
+            next() {
+
+                let nextTo = [];
+                nextTo.push(this.left());
+                nextTo.push(this.right());
+                nextTo.push(this.up());
+                nextTo.push(this.down());
+
+                return nextTo;//回傳陣列
+
+            }
+
+            left() {
+
+                //目前格子往左右、上下,如果選到的格子!=pre且不在array中,判斷是否block
+
+
+                let tempX = this.x - 1;
+                let tempY = this.y;
+                if (tempX != pre.posY || tempY != pre.posY) {
+                    return new sp(tempX, tempY, this);
+                } else {
+                    return;//
+                }
+
+            }
+            right() {
+
+                //目前格子往左右、上下,如果選到的格子!=pre且不在array中,判斷是否block
+
+
+                let tempX = this.x + 1;
+                let tempY = this.y;
+                if (tempX != pre.posY || tempY != pre.posY) {
+                    return new sp(tempX, tempY, this);
+                } else {
+                    return;//
+                }
+
+            }
+            up() {
+
+                //目前格子往左右、上下,如果選到的格子!=pre且不在array中,判斷是否block
+
+
+                let tempX = this.x;
+                let tempY = this.y - 1;
+                if (tempX != pre.posY || tempY != pre.posY) {
+                    return new sp(tempX, tempY, this);
+                } else {
+                    return;//
+                }
+
+            }
+            down() {
+
+                //目前格子往左右、上下,如果選到的格子!=pre且不在array中,判斷是否block
+
+
+                let tempX = this.x;
+                let tempY = this.y + 1;
+                if (tempX != pre.posY || tempY != pre.posY) {
+                    return new sp(tempX, tempY, this);
+                } else {
+                    return;//
+                }
+
+            }
+        }
+
         class chess {
             id;
             posX;
@@ -390,7 +498,7 @@
 
                 //let temp = $('td[pos=' + current + ']');
                 console.log("舊位置" + this.position);
-               
+
                 let temp = $('td[pos=' + this.position + ']');
                 if (temp != null) {
 
@@ -406,7 +514,7 @@
                 console.log("新位置:" + pos);
                 temp = $('td[pos=' + pos + ']');
                 //pos='\"+'+pos+'\"';
-                 if(temp!=null){
+                if (temp != null) {
 
 
                     temp.css("background-color", this.color);
@@ -414,10 +522,10 @@
                     temp.attr('block', this.block);
                     temp.attr('chessId', this.id);
 
-                    temp.append("<img id='" + this.id + "'pos='"+pos+"' class='chess'  src='images/waifu_1.png'>");              
+                    temp.append("<img id='" + this.id + "'pos='" + pos + "' class='chess'  src='images/waifu_1.png'>");
                 }
 
-                this.position=pos;
+                this.position = pos;
 
 
 

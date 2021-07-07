@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style/panel.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        table {
+
+            background-color: white;
+            border: 2px solid black;
+            border-collapse: collapse;
+            margin: auto;
+
+
+
+        }
+
+        td {
+            border: 1px solid black;
+            /* border-radius: 50%; */
+            width: 50px;
+            height: 50px;
+            transition: all .5s;
+
+        }
+    </style>
+    <script src="../js/jquery.js"></script>
+</head>
+
+<body>
+    <div style="width:100%;height: 100%;">
+        <table id='table'>
+
+
+        </table>
+        <div>♔♕♖♗♘♙♚♛♜♝♞♟</div>
+        <script>
+
+
+            function init() {
+                let tableStr = "";
+                for (let i = 1; i <= 8; i++) {
+
+                    tableStr += "<tr>"
+                    for (let j = 1; j <= 8; j++) {
+
+                        if (i % 2 != 0) {
+                            if (j % 2 == 0) {
+                                tableStr += "<td style='background-color: darkblue;'></td>";
+                            } else {
+                                tableStr += "<td></td>";
+                            }
+
+                        }else{
+                            if (j % 2 != 0) {
+                                tableStr += "<td style='background-color: darkblue;'></td>";
+                            } else {
+                                tableStr += "<td></td>";
+                            }
+
+
+                        }
+
+
+
+
+
+                    }
+                    tableStr += "<tr></tr>"
+
+                }
+                $('#table').append(tableStr);
+                var row1="♜♞♝♛♚♝♞♜";
+                $('#table tr:first-child').css('background-color','red');//var chess_row1=
+                //chess_row1.css('background-color','red');
+                
+                
+                // for(let i=0;i<row1.length;i++){
+                //     $('#table')
+                //     chess_row1.push(row1.slice(i,i));
+
+                // }               
+                //$('#table').children
+
+            }
+
+            init();
+        </script>
+</body>
+
+</html>
