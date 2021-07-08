@@ -406,7 +406,7 @@
         class sp {
 
             posX;//目前X
-            psoY;//目前Y
+            posY;//目前Y
             previous;//上一個格子
 
             constructor(x, y, pre) {
@@ -415,6 +415,24 @@
                 this.previous = pre;
 
             }
+
+            equal(b){
+
+                let result=false;
+
+
+                if(this===b){
+                    result = true;
+                }
+
+                if(this.posX==b.posX && this.posY==b.posY && this.previous==b.previous){
+                    result = true;
+                }
+
+                return result;
+
+            }
+            //要怎麼改寫includes的判斷
 
             next() {
 
