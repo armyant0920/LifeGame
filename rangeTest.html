@@ -302,6 +302,10 @@
 
 
         }
+        //深拷貝
+        function jsonDeepClone(obj) {
+            return JSON.parse(JSON.stringify(obj));
+        }
 
 
 
@@ -403,29 +407,105 @@
 
         }
 
+
+        function checkRange(move, chess) {
+
+            console.log("chess pos:"+chess.pos);
+            var blockArr = [];
+            var tempArr = [];
+            var startPoint = new sp();
+
+            startPoint.posX = chess.posX;
+            startPoint.posY = chess.posY;
+            tempArr.push(startPoint);
+            while (move > 0) {
+                console.log(`move=${move}`);
+                move--;
+
+                let tempArr2 = []
+                for (temp of tempArr) {
+                    let nextSP = temp.nextSP();
+                    //真奇怪....難道function的名子會跟呼叫時的變數名衝到?
+                    for (t of nextSP) {//前面這個變數的名稱如果跟創chess的變數名一樣,就會被改動?
+                        let same = false;
+                        for (c of blockArr) {
+
+                            if (t.equal(c) == true) {
+                                //console.log('equal:' + t + "/" + c);
+                                same = true;
+                                break;
+
+                            }
+
+                        }
+                        if (same == false) {
+                            console.log('add:' + t);
+                            tempArr2.push(t);
+                            blockArr.push(t);
+                        }
+
+                    }
+
+
+                }
+              //  console.log(`tempArr2=${tempArr2}`);
+                tempArr = [];
+                tempArr = tempArr2.slice();
+                //console.log(`tempArr=${tempArr}`);
+                //tempArr.push
+                //    tempArr = jsonDeepClone(tempArr2);
+
+
+
+
+
+
+            }
+
+            console.log(blockArr);
+
+            for (block of blockArr) {
+
+                console.log("block:" + block.pos);
+                let temp = $('td[pos=' + block.pos + ']');
+
+                if (temp != null) {
+
+                    temp.addClass('available');
+                    //temp.css("background-color", "blue");
+
+                }
+
+            }
+
+        }
+
         class sp {
 
             posX;//目前X
             posY;//目前Y
-            previous;//上一個格子
+            pos;
+            pre;//上一個格子
 
             constructor(x, y, pre) {
                 this.posX = x;
                 this.posY = y;
-                this.previous = pre;
+
+                this.pos = "\"X:" + this.posX + "|Y:" + this.posY + "\"";
+                this.pre = pre;
 
             }
 
-            equal(b){
+            equal(b) {
 
-                let result=false;
+                let result = false;
 
 
-                if(this===b){
+                if (this === b) {
                     result = true;
                 }
 
-                if(this.posX==b.posX && this.posY==b.posY && this.previous==b.previous){
+                if (this.posX == b.posX && this.posY == b.posY) {
                     result = true;
                 }
 
@@ -434,13 +514,32 @@
             }
             //要怎麼改寫includes的判斷
 
-            next() {
+            nextSP() {
 
                 let nextTo = [];
-                nextTo.push(this.left());
-                nextTo.push(this.right());
-                nextTo.push(this.up());
-                nextTo.push(this.down());
+                let left = this.left();
+                let right = this.right();
+                let up = this.up();
+                let down = this.down();
+                if (left) {
+                    nextTo.push(left);
+                }
+                if (right) {
+                    nextTo.push(right);
+                }
+                if (up) {
+                    nextTo.push(up);
+                }
+                if (down) {
+                    nextTo.push(down);
+                }
+
+                console.log("共加入:" + nextTo.length);
+
+                // nextTo.push(this.left());
+                // nextTo.push(this.right());
+                // nextTo.push(this.up());
+                // nextTo.push(this.down());
 
                 return nextTo;//回傳陣列
 
@@ -451,12 +550,32 @@
                 //目前格子往左右、上下,如果選到的格子!=pre且不在array中,判斷是否block
 
 
-                let tempX = this.x - 1;
-                let tempY = this.y;
-                if (tempX != pre.posY || tempY != pre.posY) {
-                    return new sp(tempX, tempY, this);
+                let tempX = (this.posX - 1);
+                let tempY = this.posY;
+                let current = "\"X:" + tempX + "|Y:" + tempY + "\"";
+                let temp = $('td[pos=' + current + ']');
+
+                if(temp.attr('block')=='Y'){
+                    return;
+                }
+                
+                if (this.pre) {
+                    console.log(`pre=${this.pre.posX},${this.pre.posY}`);
+                    console.log(`temp=${tempX},${tempY}`);
+                    
+                   
+
+                    if (tempX != this.pre.posX || tempY != this.pre.posY) {
+                        let result = new sp(tempX, tempY, this);
+                        console.log(`new sp=${result.posX},${result.posY}`);
+                        return result;
+                    } else {
+                        return;
+
+                    }
+
                 } else {
-                    return;//
+                    return new sp(tempX, tempY, this);
                 }
 
             }
@@ -465,59 +584,116 @@
                 //目前格子往左右、上下,如果選到的格子!=pre且不在array中,判斷是否block
 
 
-                let tempX = this.x + 1;
-                let tempY = this.y;
-                if (tempX != pre.posY || tempY != pre.posY) {
-                    return new sp(tempX, tempY, this);
-                } else {
-                    return;//
-                }
+                let tempX = (this.posX + 1);
+                let tempY = this.posY;
+                let current = "\"X:" + tempX + "|Y:" + tempY + "\"";
+                let temp = $('td[pos=' + current + ']');
 
+                if(temp.attr('block')=='Y'){
+                    return;
+                }
+                
+                if (this.pre) {
+                    console.log(`pre=${this.pre.posX},${this.pre.posY}`);
+                    console.log(`temp=${tempX},${tempY}`);
+                    
+                   
+
+                    if (tempX != this.pre.posX || tempY != this.pre.posY) {
+                        let result = new sp(tempX, tempY, this);
+                        console.log(`new sp=${result.posX},${result.posY}`);
+                        return result;
+                    } else {
+                        return;
+
+                    }
+
+                } else {
+                    return new sp(tempX, tempY, this);
+                }
             }
             up() {
 
                 //目前格子往左右、上下,如果選到的格子!=pre且不在array中,判斷是否block
 
 
-                let tempX = this.x;
-                let tempY = this.y - 1;
-                if (tempX != pre.posY || tempY != pre.posY) {
-                    return new sp(tempX, tempY, this);
-                } else {
-                    return;//
-                }
+                let tempX = this.posX;
+                let tempY = (this.posY - 1);
+                let current = "\"X:" + tempX + "|Y:" + tempY + "\"";
+                let temp = $('td[pos=' + current + ']');
 
+                if(temp.attr('block')=='Y'){
+                    return;
+                }
+                
+                if (this.pre) {
+                    console.log(`pre=${this.pre.posX},${this.pre.posY}`);
+                    console.log(`temp=${tempX},${tempY}`);
+                    
+                   
+
+                    if (tempX != this.pre.posX || tempY != this.pre.posY) {
+                        let result = new sp(tempX, tempY, this);
+                        console.log(`new sp=${result.posX},${result.posY}`);
+                        return result;
+                    } else {
+                        return;
+
+                    }
+
+                } else {
+                    return new sp(tempX, tempY, this);
+                }
             }
             down() {
 
                 //目前格子往左右、上下,如果選到的格子!=pre且不在array中,判斷是否block
 
 
-                let tempX = this.x;
-                let tempY = this.y + 1;
-                if (tempX != pre.posY || tempY != pre.posY) {
-                    return new sp(tempX, tempY, this);
-                } else {
-                    return;//
+                let tempX = this.posX;
+                let tempY = (this.posY + 1);
+                let current = "\"X:" + tempX + "|Y:" + tempY + "\"";
+                let temp = $('td[pos=' + current + ']');
+
+                if(temp.attr('block')=='Y'){
+                    return;
                 }
+                
+                if (this.pre) {
+                    console.log(`pre=${this.pre.posX},${this.pre.posY}`);
+                    console.log(`temp=${tempX},${tempY}`);
+                    
+                   
 
+                    if (tempX != this.pre.posX || tempY != this.pre.posY) {
+                        let result = new sp(tempX, tempY, this);
+                        console.log(`new sp=${result.posX},${result.posY}`);
+                        return result;
+                    } else {
+                        return;
+
+                    }
+
+                } else {
+                    return new sp(tempX, tempY, this);
+                }
             }
-        }
 
+        }
         class chess {
             id;
             posX;
             posY;
-            position;
+            pos;
             block;
             color;
 
             move(pos) {
 
                 //let temp = $('td[pos=' + current + ']');
-                console.log("舊位置" + this.position);
+                console.log("舊位置" + this.pos);
 
-                let temp = $('td[pos=' + this.position + ']');
+                let temp = $('td[pos=' + this.pos + ']');
                 if (temp != null) {
 
                     temp.css("background-color", "");
@@ -543,7 +719,7 @@
                     temp.append("<img id='" + this.id + "'pos='" + pos + "' class='chess'  src='images/waifu_1.png'>");
                 }
 
-                this.position = pos;
+                this.pos = pos;
 
 
 
@@ -557,7 +733,7 @@
                 console.log(`create:posX:${posX} posY:${posY} block:${block} color:${color}`);
                 // $(body).append('<div></div>');
                 let current = "\"X:" + posX + "|Y:" + posY + "\"";
-                this.position = current;
+                this.pos = current;
                 console.log(`current=${current}`);
 
                 let temp = $('td[pos=' + current + ']');
@@ -569,7 +745,7 @@
                     temp.attr('chessId', id);
                     temp.attr('block', block);
 
-                    temp.append("<img id='" + id + "' pos='" + tempPos + "' class='chess'  src='images/waifu_1.png'>");
+                    temp.append("<img id='" + id + "' pos='" + this.pos + "' class='chess'  src='images/waifu_1.png'>");
 
 
 
