@@ -72,7 +72,7 @@
             style="width:300px;height:150px;border:solid 1px #a1bece;position:absolute;z-index:10000;display:none;background-color:rgba( 87, 88, 86, 0.5);font-size: large;float: left;">
             <div style="float: left;">
                 <span>desc</span>
-                <button id='move' onclick="rangeCheck(pickBlock);">移動</button>
+                <button id='move' onclick="checkRange(pickBlock);">移動</button>
                 <button id='skill' onclick="">技能</button>
                 <button id='item' onclick="">道具</button>
                 <button id='state' onclick="">狀態</button>
@@ -408,19 +408,58 @@
         }
 
 
-        function checkRange(move, chess) {
+        function checkRange(pickBlock) {
 
-            console.log("chess pos:"+chess.pos);
+            var chess;
+
+            try {
+
+                chessmen.forEach(function (id, index, arr) {
+                console.log(`id比對中:${arr[index].id}`);
+           
+                    if (arr[index].id == pickBlock.attr('chessId')) {
+
+
+            
+                        chess = arr[index];
+                        throw new Error("finded");
+
+                    }
+
+           
+            });
+                
+            } catch (e) {
+
+                if(e.message=='finded'){
+
+
+                    console.log('比對OK');
+                }else{
+                    console.log(e.message);
+                }
+                
+            }
+     
+
+            if(chess==null || chess==undefined){
+                console.log("查詢失敗");
+                return;
+            }
+
+
+            console.log("chess pos:" + chess.pos);
             var blockArr = [];
             var tempArr = [];
             var startPoint = new sp();
+            var speed=chess.speed;
 
             startPoint.posX = chess.posX;
             startPoint.posY = chess.posY;
             tempArr.push(startPoint);
-            while (move > 0) {
-                console.log(`move=${move}`);
-                move--;
+            while (speed > 0) {
+                console.log(`move=${speed}`);
+                speed--;
 
                 let tempArr2 = []
                 for (temp of tempArr) {
@@ -448,7 +487,7 @@
 
 
                 }
-              //  console.log(`tempArr2=${tempArr2}`);
+                //  console.log(`tempArr2=${tempArr2}`);
                 tempArr = [];
                 tempArr = tempArr2.slice();
                 //console.log(`tempArr=${tempArr}`);
@@ -550,20 +589,20 @@
                 //目前格子往左右、上下,如果選到的格子!=pre且不在array中,判斷是否block
 
 
-                let tempX = (this.posX - 1);
-                let tempY = this.posY;
+                let tempX = parseInt(this.posX - 1);
+                let tempY = parseInt(this.posY);
                 let current = "\"X:" + tempX + "|Y:" + tempY + "\"";
                 let temp = $('td[pos=' + current + ']');
 
-                if(temp.attr('block')=='Y'){
+                if (temp.attr('block') == 'Y') {
                     return;
                 }
-                
+
                 if (this.pre) {
                     console.log(`pre=${this.pre.posX},${this.pre.posY}`);
                     console.log(`temp=${tempX},${tempY}`);
-                    
-                   
+
+
 
                     if (tempX != this.pre.posX || tempY != this.pre.posY) {
                         let result = new sp(tempX, tempY, this);
@@ -584,20 +623,20 @@
                 //目前格子往左右、上下,如果選到的格子!=pre且不在array中,判斷是否block
 
 
-                let tempX = (this.posX + 1);
-                let tempY = this.posY;
+                let tempX = parseInt(this.posX + 1);
+                let tempY = parseInt(this.posY);
                 let current = "\"X:" + tempX + "|Y:" + tempY + "\"";
                 let temp = $('td[pos=' + current + ']');
 
-                if(temp.attr('block')=='Y'){
+                if (temp.attr('block') == 'Y') {
                     return;
                 }
-                
+
                 if (this.pre) {
                     console.log(`pre=${this.pre.posX},${this.pre.posY}`);
                     console.log(`temp=${tempX},${tempY}`);
-                    
-                   
+
+
 
                     if (tempX != this.pre.posX || tempY != this.pre.posY) {
                         let result = new sp(tempX, tempY, this);
@@ -617,20 +656,20 @@
                 //目前格子往左右、上下,如果選到的格子!=pre且不在array中,判斷是否block
 
 
-                let tempX = this.posX;
-                let tempY = (this.posY - 1);
+                let tempX = parseInt(this.posX);
+                let tempY = parseInt(this.posY - 1);
                 let current = "\"X:" + tempX + "|Y:" + tempY + "\"";
                 let temp = $('td[pos=' + current + ']');
 
-                if(temp.attr('block')=='Y'){
+                if (temp.attr('block') == 'Y') {
                     return;
                 }
-                
+
                 if (this.pre) {
                     console.log(`pre=${this.pre.posX},${this.pre.posY}`);
                     console.log(`temp=${tempX},${tempY}`);
-                    
-                   
+
+
 
                     if (tempX != this.pre.posX || tempY != this.pre.posY) {
                         let result = new sp(tempX, tempY, this);
@@ -650,20 +689,20 @@
                 //目前格子往左右、上下,如果選到的格子!=pre且不在array中,判斷是否block
 
 
-                let tempX = this.posX;
-                let tempY = (this.posY + 1);
+                let tempX = parseInt(this.posX);
+                let tempY = parseInt(this.posY + 1);
                 let current = "\"X:" + tempX + "|Y:" + tempY + "\"";
                 let temp = $('td[pos=' + current + ']');
 
-                if(temp.attr('block')=='Y'){
+                if (temp.attr('block') == 'Y') {
                     return;
                 }
-                
+
                 if (this.pre) {
                     console.log(`pre=${this.pre.posX},${this.pre.posY}`);
                     console.log(`temp=${tempX},${tempY}`);
-                    
-                   
+
+
 
                     if (tempX != this.pre.posX || tempY != this.pre.posY) {
                         let result = new sp(tempX, tempY, this);
@@ -687,6 +726,7 @@
             pos;
             block;
             color;
+            speed=3;
 
             move(pos) {
 
