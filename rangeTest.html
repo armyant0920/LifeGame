@@ -116,6 +116,7 @@
         var activate = false;//滑鼠是否啟動
         var pickBlock;
         var records = [];
+        var allowRange = [];
 
         var up = -4, left = -4, right = 4, button = 4;
 
@@ -140,6 +141,7 @@
         //格子 點擊事件
         $(document).on('mousedown', '.block', function (e) {
             //左鍵
+
             if (e.button == 0) {
                 pickBlock = $(this);
                 console.log('pcik=' + pickBlock.attr('pos'));
@@ -150,9 +152,59 @@
                     // rangeCheck(pickBlock);
                     console.log('activate=' + activate);
                     showMenu($(this));
+                } else {
+                    if (activate == true) {
+                        let checkBlock = $(this);
+
+                        console.log('yes' + checkBlock.attr('pos'));
+                        //未處理跳出迴圈
+                        $.each(allowRange, function (index, block) {
+                            //console.log("allowRange:" + allowRange[index].attr('pos'));
+                            if (allowRange[index].attr('pos') == checkBlock.attr('pos')) {
+                                console.log('yesyes');
+                                checkBlock.removeClass('available');
+                                checkBlock.css('background-color', 'red');
+
+                            }
+
+
+
+
+
+                        });
+
+
+
+                        /* chessmen.forEach(function (id, index, arr) {
+                             console.log(`比對中:${arr[index].id}`);
+                             if (arr[index].id == pickBlock.attr('chessId')) {
+ 
+                                 //let e=document.getElementById(temp.name);
+                                 // e.remove();
+                                 console.log('比對OK');
+                                 arr[index].move(pos);
+                                 //document.body.remove(this.mDiv);
+                             }
+                         });
+ 
+ 
+                         $.each(range, function (index, block) {
+                             range[index].removeClass('available');
+                             range[index].css("background-color", "");
+ 
+ 
+ 
+ 
+                         });
+ 
+                     }*/
+
+
+
+
+                    }
+
                 }
-
-
             }
 
             //右鍵
@@ -415,34 +467,34 @@
             try {
 
                 chessmen.forEach(function (id, index, arr) {
-                console.log(`id比對中:${arr[index].id}`);
-           
+                    console.log(`id比對中:${arr[index].id}`);
+
                     if (arr[index].id == pickBlock.attr('chessId')) {
 
 
-            
+
                         chess = arr[index];
                         throw new Error("finded");
 
                     }
 
-           
-            });
-                
+
+                });
+
             } catch (e) {
 
-                if(e.message=='finded'){
+                if (e.message == 'finded') {
 
 
                     console.log('比對OK');
-                }else{
+                } else {
                     console.log(e.message);
                 }
-                
-            }
-     
 
-            if(chess==null || chess==undefined){
+            }
+
+
+            if (chess == null || chess == undefined) {
                 console.log("查詢失敗");
                 return;
             }
@@ -452,7 +504,7 @@
             var blockArr = [];
             var tempArr = [];
             var startPoint = new sp();
-            var speed=chess.speed;
+            var speed = chess.speed;
 
             startPoint.posX = chess.posX;
             startPoint.posY = chess.posY;
@@ -502,14 +554,14 @@
             }
 
             console.log(blockArr);
-
+            allowRange = [];
             for (block of blockArr) {
 
                 console.log("block:" + block.pos);
                 let temp = $('td[pos=' + block.pos + ']');
 
                 if (temp != null) {
-
+                    allowRange.push(temp);
                     temp.addClass('available');
                     //temp.css("background-color", "blue");
 
@@ -726,7 +778,7 @@
             pos;
             block;
             color;
-            speed=3;
+            speed = 3;
 
             move(pos) {
 
