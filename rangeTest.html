@@ -110,7 +110,7 @@
         var chessmen = [];
 
         var Timer = null;
-
+        var unit;
 
 
         var activate = false;//滑鼠是否啟動
@@ -141,7 +141,6 @@
         //格子 點擊事件
         $(document).on('mousedown', '.block', function (e) {
             //左鍵
-
             if (e.button == 0) {
                 pickBlock = $(this);
                 console.log('pcik=' + pickBlock.attr('pos'));
@@ -151,27 +150,61 @@
                     activate = !activate;
                     // rangeCheck(pickBlock);
                     console.log('activate=' + activate);
+                    chessmen.forEach(function (id, index, arr) {
+                        if (arr[index].id == pickBlock.attr('chessId')) {
+                            console.log('比對OK');
+                            unit = arr[index];
+
+                        }
+
+                    });
+
+
                     showMenu($(this));
                 } else {
                     if (activate == true) {
+
+
                         let checkBlock = $(this);
+                        let pos = checkBlock.attr('pos');
 
-                        console.log('yes' + checkBlock.attr('pos'));
+                        console.log('yes' + pos);
                         //未處理跳出迴圈
-                        $.each(allowRange, function (index, block) {
-                            //console.log("allowRange:" + allowRange[index].attr('pos'));
-                            if (allowRange[index].attr('pos') == checkBlock.attr('pos')) {
-                                console.log('yesyes');
-                                checkBlock.removeClass('available');
-                                checkBlock.css('background-color', 'red');
 
+                        try {
+
+                            $.each(allowRange, function (index, block) {
+                                //console.log("allowRange:" + allowRange[index].attr('pos'));
+                                if (allowRange[index].attr('pos') == pos) {
+                                    console.log('yesyes');
+                                    checkBlock.removeClass('available');
+                                    checkBlock.css('background-color', 'red');
+                                    unit.move(pos);
+
+                                    $.each(allowRange, function (index, block) {
+
+                                        allowRange[index].removeClass('available');
+
+
+                                    });
+
+                                    throw new Error("moved");
+
+
+                                }
+
+                            });
+
+                        } catch (e) {
+                            if (e=='moved'){
+
+                                console.log('moveD');
+                            }else{
+
+                                console.log('error:'+e);
                             }
 
-
-
-
-
-                        });
+                        }
 
 
 
@@ -797,6 +830,7 @@
 
 
                 }
+                pos = '"' + pos + '"';
                 console.log("新位置:" + pos);
                 temp = $('td[pos=' + pos + ']');
                 //pos='\"+'+pos+'\"';
