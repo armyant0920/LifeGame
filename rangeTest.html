@@ -147,7 +147,10 @@
                 //如果是一個棋子
                 if (pickBlock.attr("chess") == 'Y') {
                     //切換啟動狀態
-                    activate = !activate;
+                    if(activate==false){
+                        activate=true;
+                    }
+                    
                     // rangeCheck(pickBlock);
                     console.log('activate=' + activate);
                     chessmen.forEach(function (id, index, arr) {
@@ -161,7 +164,9 @@
 
 
                     showMenu($(this));
-                } else {
+                } else {//如果不是一個旗子
+
+                    
                     if (activate == true) {
 
 
@@ -194,6 +199,7 @@
                                 }
 
                             });
+                            activate=false;
 
                         } catch (e) {
                             if (e=='moved'){
@@ -242,7 +248,7 @@
 
             //右鍵
 
-            if (e.button == 2) {
+            /*if (e.button == 2) {
                 let pos = $(this).attr('pos');
                 pos = '\"' + pos + '\"';
                 console.log(`你點了右鍵:${pos} `);
@@ -287,13 +293,13 @@
  
                      }
  
-                 })*/
+                 })
 
 
 
                 //$(this).append("<img id='" + tempPos + "' class='chess'  src='images/waifu_1.png'>");
 
-            }
+            }*/
 
 
 
@@ -514,7 +520,7 @@
 
                 });
 
-            } catch (e) {
+            } catch (e) {   
 
                 if (e.message == 'finded') {
 
@@ -540,7 +546,10 @@
             var speed = chess.speed;
 
             startPoint.posX = chess.posX;
+            console.log(`startX=${startPoint.posX}`);
             startPoint.posY = chess.posY;
+            console.log(`startX=${startPoint.posY}`);
+            console.log(`move=${speed}`);
             tempArr.push(startPoint);
             while (speed > 0) {
                 console.log(`move=${speed}`);
@@ -843,9 +852,14 @@
                     temp.attr('chessId', this.id);
 
                     temp.append("<img id='" + this.id + "'pos='" + pos + "' class='chess'  src='images/waifu_1.png'>");
+                    this.pos = pos;
+                
+                    this.posX = parseInt(pos.slice(pos.indexOf('X:')+2, pos.indexOf('|')));
+                    this.posY = parseInt(pos.slice(pos.indexOf('Y:')+2));
                 }
 
-                this.pos = pos;
+               
+
 
 
 
@@ -858,7 +872,7 @@
                 this.color = color;
                 console.log(`create:posX:${posX} posY:${posY} block:${block} color:${color}`);
                 // $(body).append('<div></div>');
-                let current = "\"X:" + posX + "|Y:" + posY + "\"";
+                let current = "\'X:" + posX + "|Y:" + posY + "'";
                 this.pos = current;
                 console.log(`current=${current}`);
 
